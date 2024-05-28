@@ -1,26 +1,34 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCarDto } from './dto/create-car.dto';
-import { UpdateCarDto } from './dto/update-car.dto';
+import { ILike, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CarFavoriteEntity } from './entities/car.entity';
 
 @Injectable()
 export class CarService {
-  create(createCarDto: CreateCarDto) {
-    return 'This action adds a new car';
-  }
+  constructor(
+    @InjectRepository(CarFavoriteEntity)
+    private carFavoriteRepository: Repository<CarFavoriteEntity>,
+  ) {}
 
-  findAll() {
-    return `This action returns all car`;
-  }
+  async search(
+    searchTerm: string,
+    orderField: string,
+    orderDirection: 'ASC' | 'DESC',
+    page: number,
+    limit: number,
+  ) {
+    const [results, total] = await this.carFavoriteRepository.findAndCount({
+      where: { brand: ILike(`%${searchTerm}%`) },
+      order: { [orderField]: orderDirection },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
 
-  findOne(id: number) {
-    return `This action returns a #${id} car`;
-  }
-
-  update(id: number, updateCarDto: UpdateCarDto) {
-    return `This action updates a #${id} car`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} car`;
+    return {
+      results,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalRecords: total,
+    };
   }
 }

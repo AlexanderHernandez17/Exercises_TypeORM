@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({name: 'cars_alexanderhernandez'})
-export class CarFavorite {
+export class CarFavoriteEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
     
@@ -19,5 +19,4 @@ export class CarFavorite {
 
     @Column()
     combustion_type: string;
-    
 }
